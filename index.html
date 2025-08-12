@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Data Science Notes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A tab-based single-page application is used to organize the distinct topics (Python, SQL, ML, etc.) into manageable, non-linear sections. This structure was chosen over a long-scrolling page to allow users to quickly navigate to their topic of interest without being forced into a linear progression. Key interactions include live Chart.js visualizations for concepts like Matplotlib plots and K-Means clustering, and interactive tables for SQL queries, providing a hands-on learning experience that is more effective than static text and code. -->
+    <!-- Visualization & Content Choices: The application translates static notes into interactive experiences. For Matplotlib, a live Chart.js scatter plot replaces a static image. For SQL, interactive buttons manipulate a live HTML table, demonstrating query effects. For Machine Learning, a toggleable outlier in a chart visually explains 'Leverage' in regression, and a dynamic chart demonstrates K-Means clustering. These choices use Canvas-based rendering (Chart.js) and DOM manipulation (Vanilla JS) to make abstract concepts tangible and explorable, adhering to the NO SVG/Mermaid rule. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tab-btn { transition: all 0.3s ease; }
+        .tab-btn.active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (max-width: 768px) { .chart-container { height: 300px; } }
+        .code-block { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-family: monospace; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-indigo-600">Interactive Data Science Notes</h1>
+            <p class="mt-2 text-lg text-slate-600">An explorable guide to the core concepts of Data Science.</p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center gap-2 md:gap-4 mb-8">
+            <button class="tab-btn active font-semibold py-2 px-4 border-b-4 border-transparent rounded-t-lg" onclick="showTab('intro')">👋 Introduction</button>
+            <button class="tab-btn font-semibold py-2 px-4 border-b-4 border-transparent rounded-t-lg" onclick="showTab('python')">🐍 Python</button>
+            <button class="tab-btn font-semibold py-2 px-4 border-b-4 border-transparent rounded-t-lg" onclick="showTab('sql')">🗃️ SQL</button>
+            <button class="tab-btn font-semibold py-2 px-4 border-b-4 border-transparent rounded-t-lg" onclick="showTab('eda')">📊 EDA</button>
+            <button class="tab-btn font-semibold py-2 px-4 border-b-4 border-transparent rounded-t-lg" onclick="showTab('ml')">🤖 Machine Learning</button>
+            <button class="tab-btn font-semibold py-2 px-4 border-b-4 border-transparent rounded-t-lg" onclick="showTab('dl')">🧠 Deep Learning</button>
+        </nav>
+
+        <main id="main-content">
+            <section id="intro" class="content-section active bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">Welcome to Your Interactive Notes!</h2>
+                <p class="text-slate-600 leading-relaxed">This application transforms traditional data science notes into a dynamic and engaging learning experience. Instead of just reading, you can interact with the concepts. Click through the tabs above to explore different topics. You'll find live code demonstrations, interactive charts that you can manipulate, and visual explanations of complex algorithms. The goal is to help you build a more intuitive understanding of data science by doing, not just reading. Enjoy exploring!</p>
+            </section>
+
+            <section id="python" class="content-section bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">Python for Data Science</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">Pandas</h3>
+                        <p class="mb-4 text-slate-600">The most crucial library for data manipulation and analysis. It introduces the `DataFrame` (like a spreadsheet) and `Series` (like a column).</p>
+                        <div class="code-block">
+<pre>import pandas as pd
+
+data = {'Student': ['Anna', 'Ben', 'Clara'], 'Score': [88, 94, 78]}
+df = pd.DataFrame(data)
+
+# Calculate the average score
+average_score = df['Score'].mean()
+print(f"Average Score: {average_score}")</pre>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2">NumPy</h3>
+                        <p class="mb-4 text-slate-600">The fundamental package for numerical computing. Its core feature is the powerful N-dimensional array object for fast math.</p>
+                        <div class="code-block">
+<pre>import numpy as np
+
+arr = np.array([10, 20, 30, 40, 50])
+
+# Perform a vectorized operation
+new_arr = arr + 5
+print("Array after adding 5:", new_arr)</pre>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <h3 class="text-xl font-semibold mb-2">Matplotlib & Seaborn</h3>
+                        <p class="mb-4 text-slate-600">These are the go-to libraries for data visualization. Below is a live, interactive version of the scatter plot from the notes, created with Chart.js. Hover over the points to see their values.</p>
+                        <div class="chart-container">
+                            <canvas id="scatterPlot"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sql" class="content-section bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">Interactive SQL Queries</h2>
+                <p class="mb-4 text-slate-600">SQL is the standard language for querying relational databases. Use the buttons below to run live queries against the sample `Products` table. The table and the displayed query will update based on your selection.</p>
+                <div class="flex flex-wrap justify-center gap-3 mb-4">
+                    <button class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded" onclick="runQuery('all')">SELECT *</button>
+                    <button class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded" onclick="runQuery('filter')">Filter Electronics</button>
+                    <button class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded" onclick="runQuery('aggregate')">Average Price by Category</button>
+                </div>
+                <div class="mb-4">
+                    <h4 class="font-semibold">Current Query:</h4>
+                    <div id="sqlQuery" class="code-block">SELECT * FROM Products;</div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border">
+                        <thead id="sqlTableHead"></thead>
+                        <tbody id="sqlTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="eda" class="content-section bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">Exploratory Data Analysis (EDA)</h2>
+                <p class="mb-6 text-slate-600">EDA is the critical first step in any data project. It's the process of using visualizations and summary statistics to understand your data, discover patterns, and check assumptions before modeling. Click on a step to learn more.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div id="eda-steps" class="flex flex-col gap-4">
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-indigo-50" onclick="showEdaDetail('cleaning')">
+                            <h4 class="font-bold text-lg">1. 🧹 Data Cleaning</h4>
+                        </div>
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-indigo-50" onclick="showEdaDetail('univariate')">
+                            <h4 class="font-bold text-lg">2. 📊 Univariate Analysis</h4>
+                        </div>
+                         <div class="p-4 border rounded-lg cursor-pointer hover:bg-indigo-50" onclick="showEdaDetail('bivariate')">
+                            <h4 class="font-bold text-lg">3. 📈 Bivariate Analysis</h4>
+                        </div>
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-indigo-50" onclick="showEdaDetail('engineering')">
+                            <h4 class="font-bold text-lg">4. 🛠️ Feature Engineering</h4>
+                        </div>
+                        <div class="p-4 border rounded-lg cursor-pointer hover:bg-indigo-50" onclick="showEdaDetail('correlation')">
+                            <h4 class="font-bold text-lg">5. 🔗 Correlation Analysis</h4>
+                        </div>
+                    </div>
+                    <div id="eda-detail" class="bg-slate-100 p-6 rounded-lg">
+                        <h3 id="eda-detail-title" class="text-xl font-bold mb-2">Select a step</h4>
+                        <p id="eda-detail-text" class="text-slate-700">Details about the selected EDA step will appear here.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="ml" class="content-section bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">Machine Learning</h2>
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-3 pb-2 border-b-2 border-indigo-200">Supervised Learning</h3>
+                        <p class="mb-6 text-slate-600">In supervised learning, the model learns from data that is already labeled with the correct output. The goal is to learn a mapping function that can predict the output for new, unseen data. It's like learning with a teacher or a "supervisor."</p>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="p-4 border rounded-lg">
+                                <h4 class="text-xl font-semibold mb-2">Regression: Leverage</h4>
+                                <p class="mb-4 text-slate-600">Leverage measures how much an outlier influences the regression line. Toggle the high-leverage point to see how it "pulls" the line.</p>
+                                <div class="chart-container">
+                                    <canvas id="leverageChart"></canvas>
+                                </div>
+                                <div class="text-center mt-4">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="leverageToggle" class="sr-only peer" onchange="updateLeverageChart()" checked>
+                                        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-indigo-300 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                        <span class="ms-3 text-sm font-medium text-gray-900">Include High-Leverage Point</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="p-4 border rounded-lg bg-slate-50">
+                                <h4 class="text-xl font-semibold mb-2">Key Concepts</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                    <li><b>Regression:</b> Predicts a continuous value (e.g., house price, temperature). Models include Linear Regression and Decision Tree Regressors.</li>
+                                    <li><b>Classification:</b> Predicts a discrete class label (e.g., 'Spam' or 'Not Spam'). Models include Logistic Regression, SVMs, and Random Forests.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-3 pb-2 border-b-2 border-indigo-200">Unsupervised Learning</h3>
+                        <p class="mb-6 text-slate-600">Here, the model works on its own to discover patterns and information from unlabeled data. There is no "correct" answer to learn from; the algorithm tries to find the underlying structure of the data.</p>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="p-4 border rounded-lg">
+                                <h4 class="text-xl font-semibold mb-2">Clustering: K-Means</h4>
+                                <p class="mb-4 text-slate-600">K-Means partitions data into 'k' distinct clusters. Use the slider to change 'k' and see how the algorithm re-groups the customer data points.</p>
+                                <div class="chart-container">
+                                    <canvas id="kmeansChart"></canvas>
+                                </div>
+                                <div class="text-center mt-4">
+                                    <label for="kSlider" class="block mb-2 text-sm font-medium text-gray-900">Number of Clusters (k): <span id="kValue">3</span></label>
+                                    <input id="kSlider" type="range" min="2" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" oninput="updateKmeansChart(this.value)">
+                                </div>
+                            </div>
+                             <div class="p-4 border rounded-lg bg-slate-50">
+                                <h4 class="text-xl font-semibold mb-2">Key Concepts</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-700">
+                                    <li><b>Clustering:</b> Groups similar data points together. K-Means is a popular algorithm for this task.</li>
+                                    <li><b>Dimensionality Reduction:</b> Reduces the number of features in a dataset while retaining important information. Principal Component Analysis (PCA) is a common technique.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="dl" class="content-section bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">Deep Learning</h2>
+                <p class="mb-6 text-slate-600">Deep Learning uses Artificial Neural Networks (ANNs) with many layers. Below is a simplified diagram of a neural network and descriptions of key architectures.</p>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-4 text-center p-4 border-2 border-dashed rounded-lg">
+                     <div class="p-4 rounded-lg bg-sky-100">
+                        <h4 class="font-bold">Input Layer</h4>
+                        <p class="text-sm">Receives data</p>
+                    </div>
+                    <div class="font-bold text-2xl text-slate-400">→</div>
+                    <div class="p-4 rounded-lg bg-indigo-100">
+                        <h4 class="font-bold">Hidden Layers</h4>
+                        <p class="text-sm">Perform computations</p>
+                    </div>
+                     <div class="font-bold text-2xl text-slate-400">→</div>
+                    <div class="p-4 rounded-lg bg-emerald-100">
+                        <h4 class="font-bold">Output Layer</h4>
+                        <p class="text-sm">Produces result</p>
+                    </div>
+                </div>
+                <div class="mt-8 grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-lg">Convolutional Neural Networks (CNNs)</h3>
+                        <p class="text-slate-600">The standard for image recognition. They use "convolutional" layers to scan images and learn features like edges, textures, and shapes.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-lg">Recurrent Neural Networks (RNNs)</h3>
+                        <p class="text-slate-600">Designed for sequential data like text or time series. They have a form of memory that allows them to use prior information to inform the current input.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+<script>
+    let scatterChart, leverageChart, kmeansChart;
+
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(button => button.classList.remove('active'));
+        document.querySelector(`button[onclick="showTab('${tabName}')"]`).classList.add('active');
+        document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+    }
+    
+    const edaDetails = {
+        cleaning: { title: '1. 🧹 Data Cleaning', text: 'This initial step involves handling missing values (e.g., by filling them with a mean or median, or removing the row), correcting data types (e.g., converting a text date to a datetime object), and removing duplicate records to ensure data quality.' },
+        univariate: { title: '2. 📊 Univariate Analysis', text: 'Analyzing single variables to understand their distribution. This is often done with histograms for numerical data to see its shape, or bar charts for categorical data to see frequency counts.' },
+        bivariate: { title: '3. 📈 Bivariate Analysis', text: 'Exploring the relationship between two variables. Common methods include scatter plots for two numerical variables, or box plots to compare a numerical variable across different categories.' },
+        engineering: { title: '4. 🛠️ Feature Engineering', text: 'Creating new, more informative features from existing ones. This could involve combining two variables, extracting parts of a date (like the day of the week), or creating polynomial features.' },
+        correlation: { title: '5. 🔗 Correlation Analysis', text: 'Identifying which variables are related to each other and the strength of that relationship. A correlation matrix, often visualized as a heatmap, is a common tool for this.' },
+    };
+
+    function showEdaDetail(step) {
+        document.getElementById('eda-detail-title').innerText = edaDetails[step].title;
+        document.getElementById('eda-detail-text').innerText = edaDetails[step].text;
+    }
+
+    function createScatterPlot() {
+        const ctx = document.getElementById('scatterPlot').getContext('2d');
+        const studyData = {
+            datasets: [{
+                label: 'Exam Score vs. Hours Studied',
+                data: [{x: 2, y: 65}, {x: 3, y: 70}, {x: 5, y: 85}, {x: 6, y: 82}, {x: 8, y: 95}],
+                backgroundColor: 'rgba(79, 70, 229, 0.8)'
+            }]
+        };
+        scatterChart = new Chart(ctx, {
+            type: 'scatter',
+            data: studyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Hours Studied' } },
+                    y: { title: { display: true, text: 'Final Exam Score' } }
+                }
+            }
+        });
+    }
+
+    const sqlData = {
+        products: [
+            { ProductID: 101, ProductName: 'Laptop', Category: 'Electronics', Price: 1200 },
+            { ProductID: 102, ProductName: 'Keyboard', Category: 'Electronics', Price: 75 },
+            { ProductID: 201, ProductName: 'T-Shirt', Category: 'Apparel', Price: 25 },
+        ],
+        queries: {
+            all: 'SELECT * FROM Products;',
+            filter: "SELECT * FROM Products WHERE Category = 'Electronics';",
+            aggregate: 'SELECT Category, AVG(Price) as AveragePrice FROM Products GROUP BY Category;'
+        }
+    };
+
+    function renderSqlTable(data, headers) {
+        const tableHead = document.getElementById('sqlTableHead');
+        const tableBody = document.getElementById('sqlTableBody');
+        tableHead.innerHTML = `<tr>${headers.map(h => `<th class="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 text-indigo-600 tracking-wider">${h}</th>`).join('')}</tr>`;
+        tableBody.innerHTML = data.map(row => `<tr>${headers.map(h => `<td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">${row[h]}</td>`).join('')}</tr>`).join('');
+    }
+
+    function runQuery(queryType) {
+        document.getElementById('sqlQuery').textContent = sqlData.queries[queryType];
+        let resultData, headers;
+        switch (queryType) {
+            case 'filter':
+                resultData = sqlData.products.filter(p => p.Category === 'Electronics');
+                headers = Object.keys(sqlData.products[0]);
+                break;
+            case 'aggregate':
+                const aggregated = sqlData.products.reduce((acc, p) => {
+                    if (!acc[p.Category]) acc[p.Category] = { sum: 0, count: 0 };
+                    acc[p.Category].sum += p.Price;
+                    acc[p.Category].count++;
+                    return acc;
+                }, {});
+                resultData = Object.keys(aggregated).map(cat => ({ Category: cat, AveragePrice: (aggregated[cat].sum / aggregated[cat].count).toFixed(2) }));
+                headers = ['Category', 'AveragePrice'];
+                break;
+            default:
+                resultData = sqlData.products;
+                headers = Object.keys(sqlData.products[0]);
+                break;
+        }
+        renderSqlTable(resultData, headers);
+    }
+    
+    const leverageData = {
+        base: [{x: 1, y: 2}, {x: 2, y: 3}, {x: 3, y: 5}, {x: 4, y: 4}, {x: 5, y: 6}],
+        leveragePoint: {x: 10, y: 3}
+    };
+    
+    function getRegressionLine(data) {
+        if (data.length < 2) return [];
+        const n = data.length;
+        const sumX = data.reduce((acc, pt) => acc + pt.x, 0);
+        const sumY = data.reduce((acc, pt) => acc + pt.y, 0);
+        const sumXY = data.reduce((acc, pt) => acc + pt.x * pt.y, 0);
+        const sumXX = data.reduce((acc, pt) => acc + pt.x * pt.x, 0);
+        
+        const denominator = (n * sumXX - sumX * sumX);
+        if (denominator === 0) return [];
+
+        const slope = (n * sumXY - sumX * sumY) / denominator;
+        const intercept = (sumY - slope * sumX) / n;
+        
+        const minX = Math.min(...data.map(d => d.x));
+        const maxX = Math.max(...data.map(d => d.x));
+        
+        return [
+            {x: minX, y: slope * minX + intercept},
+            {x: maxX, y: slope * maxX + intercept}
+        ];
+    }
+    
+    function createLeverageChart() {
+        const ctx = document.getElementById('leverageChart').getContext('2d');
+        leverageChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {},
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { min: 0, max: 11 }, y: { min: 0, max: 7 } },
+                plugins: { legend: { display: false } }
+            }
+        });
+        updateLeverageChart();
+    }
+
+    function updateLeverageChart() {
+        const includeLeverage = document.getElementById('leverageToggle').checked;
+        const currentData = includeLeverage ? [...leverageData.base, leverageData.leveragePoint] : [...leverageData.base];
+        const regressionLine = getRegressionLine(currentData);
+        
+        leverageChart.data = {
+            datasets: [
+                {
+                    type: 'scatter',
+                    label: 'Base Points',
+                    data: leverageData.base,
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                },
+                {
+                    type: 'scatter',
+                    label: 'Leverage Point',
+                    data: includeLeverage ? [leverageData.leveragePoint] : [],
+                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                    pointRadius: 8
+                },
+                {
+                    type: 'line',
+                    label: 'Regression Line',
+                    data: regressionLine,
+                    borderColor: 'rgba(22, 163, 74, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                    pointRadius: 0
+                }
+            ]
+        };
+        leverageChart.update();
+    }
+
+    const kmeansData = [
+        {x: 15, y: 81}, {x: 39, y: 1}, {x: 16, y: 6}, {x: 77, y: 94}, {x: 28, y: 40},
+        {x: 78, y: 90}, {x: 35, y: 7}, {x: 60, y: 50}, {x: 20, y: 75}, {x: 90, y: 85}
+    ];
+    const colors = ['rgba(239, 68, 68, 0.7)', 'rgba(59, 130, 246, 0.7)', 'rgba(22, 163, 74, 0.7)', 'rgba(245, 158, 11, 0.7)', 'rgba(139, 92, 246, 0.7)'];
+    
+    function simpleKMeans(data, k) {
+        let centroids = data.slice(0, k).map(p => ({...p}));
+        let assignments = [];
+        let changed = true;
+        
+        while(changed) {
+            changed = false;
+            assignments = data.map(point => {
+                let minDist = Infinity;
+                let bestCentroid = 0;
+                centroids.forEach((centroid, i) => {
+                    const dist = Math.hypot(point.x - centroid.x, point.y - centroid.y);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        bestCentroid = i;
+                    }
+                });
+                return bestCentroid;
+            });
+
+            const newCentroids = Array.from({length: k}, () => ({x: 0, y: 0, count: 0}));
+            data.forEach((point, i) => {
+                const clusterId = assignments[i];
+                newCentroids[clusterId].x += point.x;
+                newCentroids[clusterId].y += point.y;
+                newCentroids[clusterId].count++;
+            });
+            
+            newCentroids.forEach((c, i) => {
+                if(c.count > 0) {
+                    const newX = c.x / c.count;
+                    const newY = c.y / c.count;
+                    if(Math.abs(newX - centroids[i].x) > 0.1 || Math.abs(newY - centroids[i].y) > 0.1) {
+                        changed = true;
+                    }
+                    centroids[i] = {x: newX, y: newY};
+                }
+            });
+        }
+        return assignments;
+    }
+    
+    function createKmeansChart() {
+        const ctx = document.getElementById('kmeansChart').getContext('2d');
+        kmeansChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {},
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: { title: { display: true, text: 'Annual Income (k$)' } }, y: { title: { display: true, text: 'Spending Score' } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+        updateKmeansChart(3);
+    }
+
+    function updateKmeansChart(k) {
+        document.getElementById('kValue').innerText = k;
+        const assignments = simpleKMeans(kmeansData, parseInt(k));
+        const datasets = Array.from({length: k}, (_, i) => ({
+            label: `Cluster ${i + 1}`,
+            data: [],
+            backgroundColor: colors[i]
+        }));
+        
+        kmeansData.forEach((point, i) => {
+            datasets[assignments[i]].data.push(point);
+        });
+        
+        kmeansChart.data.datasets = datasets;
+        kmeansChart.update();
+    }
+    
+    window.onload = () => {
+        showTab('intro');
+        showEdaDetail('cleaning');
+        createScatterPlot();
+        runQuery('all');
+        createLeverageChart();
+        createKmeansChart();
+    };
+</script>
+
+</body>
+</html>
